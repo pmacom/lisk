@@ -21,7 +21,7 @@ var config = require('../../test/data/config.json');
 var Sequence = require('../../helpers/sequence.js');
 var database = require('../../db');
 var genesisblock = require('../../test/data/genesis_block.json');
-var Logger = require('../../logger.js');
+var createLogger = require('../../logger.js');
 var z_schema = require('../../helpers/z_schema.js');
 var cacheHelper = require('../../helpers/cache.js');
 var Cache = require('../../modules/cache.js');
@@ -32,9 +32,8 @@ var Account = require('../../logic/account.js');
 
 var modulesLoader = new function() {
 	this.db = null;
-	this.logger = new Logger({
-		echo: null,
-		errorLevel: config.fileLogLevel,
+	this.logger = createLogger({
+		level: config.fileLogLevel,
 		filename: config.logFileName,
 	});
 	config.nonce = randomstring.generate(16);

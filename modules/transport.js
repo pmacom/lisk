@@ -55,7 +55,7 @@ __private.messages = {};
 class Transport {
 	constructor(cb, scope) {
 		library = {
-			logger: scope.logger,
+			logger: scope.logger.child({ module: 'transport' }),
 			db: scope.db,
 			bus: scope.bus,
 			schema: scope.schema,
@@ -87,7 +87,7 @@ class Transport {
 			scope.config.forging.force,
 			scope.logic.peers,
 			scope.logic.transaction,
-			scope.logger
+			scope.logger.child({ module: 'broadcaster' })
 		);
 
 		setImmediate(cb, null, self);

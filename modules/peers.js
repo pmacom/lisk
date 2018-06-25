@@ -52,7 +52,7 @@ const peerDiscoveryFrequency = 30000;
 class Peers {
 	constructor(cb, scope) {
 		library = {
-			logger: scope.logger,
+			logger: scope.logger.child({ module: 'peers' }),
 			db: scope.db,
 			schema: scope.schema,
 			bus: scope.bus,
@@ -377,7 +377,10 @@ __private.dbLoad = function(cb) {
 					if (library.logic.peers.upsert(peer, true) !== true) {
 						return setImmediate(eachCb);
 					}
-					if (peer.state !== Peer.STATE.BANNED && Date.now() - peer.updated > 3000) {
+					if (
+						peer.state !== Peer.STATE.BANNED &&
+						Date.now() - peer.updated > 3000
+					) {
 						peer.rpc.status((err, status) => {
 							__private.updatePeerStatus(err, status, peer);
 							if (!err) {

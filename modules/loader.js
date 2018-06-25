@@ -57,7 +57,7 @@ __private.retries = 5;
 class Loader {
 	constructor(cb, scope) {
 		library = {
-			logger: scope.logger,
+			logger: scope.logger.child({ module: 'loader' }),
 			db: scope.db,
 			network: scope.network,
 			schema: scope.schema,
@@ -202,7 +202,9 @@ __private.loadSignatures = function(cb) {
 				});
 			},
 			function(peer, waterCb) {
-				library.logger.log(`Loading signatures from: ${peer.string}`);
+				library.logger.info('Loading signatures', {
+					peer: peer.string,
+				});
 				peer.rpc.getSignatures((err, res) => {
 					if (err) {
 						modules.peers.remove(peer);
@@ -266,7 +268,9 @@ __private.loadTransactions = function(cb) {
 				});
 			},
 			function(peer, waterCb) {
-				library.logger.log(`Loading transactions from: ${peer.string}`);
+				library.logger.info('Loading transactions', {
+					peer: peer.string,
+				});
 				peer.rpc.getTransactions((err, res) => {
 					if (err) {
 						modules.peers.remove(peer);
@@ -708,14 +712,10 @@ __private.loadBlocksFromNetwork = function(cb) {
 								errorCount += 1;
 								return next();
 							}
-							library.logger.info(
-								[
-									'Found common block:',
-									commonBlock.id,
-									'with:',
-									peer.string,
-								].join(' ')
-							);
+							library.logger.info('Found common block', {
+								blockId: commonBlock.id,
+								peer: peer.string,
+							});
 							return setImmediate(cb);
 						}
 					);
@@ -925,7 +925,9 @@ Loader.prototype.onPeersReady = function() {
 					if (__private.loaded) {
 						async.retry(__private.retries, __private.loadTransactions, err => {
 							if (err) {
-								library.logger.log('Unconfirmed transactions loader', err);
+								library.logger.info('Unconfirmed transactions loader', {
+									error: err,
+								});
 							}
 
 							return setImmediate(seriesCb);
@@ -938,7 +940,7 @@ Loader.prototype.onPeersReady = function() {
 					if (__private.loaded) {
 						async.retry(__private.retries, __private.loadSignatures, err => {
 							if (err) {
-								library.logger.log('Signatures loader', err);
+								library.logger.info('Signatures loader', { error: err });
 							}
 
 							return setImmediate(seriesCb);
